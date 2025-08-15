@@ -76,6 +76,32 @@ export async function signIn(email: string, password: string) {
     }
 }
 
+// Google OAuth sign in
+export async function signInWithGoogle() {
+  try {
+    // Get the origin safely for both client and server
+    const origin = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://jobposting-sxhz.vercel.app';
+      
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${origin}/auth/callback`
+      }
+    })
+
+    if (error) {
+      throw error
+    }
+
+    return { data, error: null }
+  } catch (error) {
+    console.error('Google sign in error:', error)
+    return { data: null, error }
+  }
+}
+
 // Sign out function
 export async function signOut() {
     try {
