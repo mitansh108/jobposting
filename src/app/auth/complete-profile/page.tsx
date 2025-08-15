@@ -14,18 +14,60 @@ export default function CompleteProfile() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: profile } = await getCurrentUserProfile();
-      if (profile) {
-        setUser(profile);
-        // If user already has a type, redirect them
-        if (profile.user_type) {
-          if (profile.user_type === 'recruiter') {
-            router.push('/recruiter-dashboard');
-          } else {
-            router.push('/dashboard');
-          }
+      try {
+        // First get the authenticated user
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (!authUser) {
+          router.push('/login');
+          return;
         }
-      } else {
+
+        // Try to get existing profile
+        const { data: profile } = await getCurrentUserProfile();
+        
+        if (profile) {
+          setUser(profile);
+          // If user already has a type, redirect them
+          if (profile.user_type) {
+            if (profile.user_type === 'recruiter') {
+              router.push('/recruiter-dashboard');
+            } else {
+              router.push('/dashboard');
+            }
+          }
+        } else {
+          // No profile exists, create one for Google OAuth users
+          const { error } = await supabase
+            .from('users')
+            .insert([
+              {
+                id: authUser.id,
+                email: authUser.email,
+                first_name: authUser.user_metadata?.full_name?.split(' ')[0] || authUser.user_metadata?.name?.split(' ')[0] || '',
+                last_name: authUser.user_metadata?.full_name?.split(' ').slice(1).join(' ') || authUser.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
+              }
+            ]);
+
+          if (error) {
+            console.error('Profile creation error:', error);
+            // If there's a unique constraint error, the user might already exist
+            if (!error.message.includes('duplicate key')) {
+              alert('Error creating profile. Please try again.');
+              return;
+            }
+          }
+
+          // Set the user data for the form
+          setUser({
+            id: authUser.id,
+            email: authUser.email,
+            first_name: authUser.user_metadata?.full_name?.split(' ')[0] || authUser.user_metadata?.name?.split(' ')[0] || '',
+            last_name: authUser.user_metadata?.full_name?.split(' ').slice(1).join(' ') || authUser.user_metadata?.name?.split(' ').slice(1).join(' ') || '',
+          });
+        }
+      } catch (error) {
+        console.error('Check user error:', error);
         router.push('/login');
       }
     };

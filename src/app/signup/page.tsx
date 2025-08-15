@@ -70,14 +70,7 @@ export default function Signup() {
       }
 
       setSuccess(true);
-      // Redirect based on user type
-      setTimeout(() => {
-        if (userType === 'recruiter') {
-          router.push('/recruiter-dashboard');
-        } else {
-          router.push('/dashboard');
-        }
-      }, 1500);
+      // Don't redirect immediately - user needs to confirm email first
 
     } catch (err) {
       setError('An unexpected error occurred');
@@ -170,7 +163,13 @@ export default function Signup() {
             {/* Success Message */}
             {success && (
               <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-                Account created successfully! Redirecting to login...
+                <div className="font-medium mb-1">Account created successfully!</div>
+                <div>Please check your email and click the confirmation link to activate your account.</div>
+                <div className="mt-2">
+                  <Link href="/login" className="text-indigo-600 hover:text-indigo-500 underline">
+                    Go to login page
+                  </Link>
+                </div>
               </div>
             )}
 

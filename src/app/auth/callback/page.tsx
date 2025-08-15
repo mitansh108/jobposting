@@ -29,7 +29,7 @@ export default function AuthCallback() {
           } else if (profile?.user_type === 'jobseeker') {
             router.push('/dashboard');
           } else {
-            // User exists but no user_type set (Google OAuth user)
+            // User exists but no user_type set, or no profile exists (Google OAuth user)
             router.push('/auth/complete-profile');
           }
         } else {
