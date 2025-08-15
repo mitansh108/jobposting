@@ -1,28 +1,40 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { updatePassword } from '@/lib/auth';
 
-function ResetPasswordForm() {
+// Loading component
+function LoadingSpinner() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+    </div>
+  );
+}
+
+// Main form component that uses search params
+function ResetPasswordContent() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
+  // Get URL parameters on client side only
   useEffect(() => {
-    // Check if we have the required tokens from the URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (!accessToken || !refreshToken) {
-      setError('Invalid reset link. Please request a new password reset.');
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('access_token');
+      const refreshToken = urlParams.get('refresh_token');
+      
+      if (!accessToken || !refreshToken) {
+        setError('Invalid reset link. Please request a new password reset.');
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,14 +179,11 @@ function ResetPasswordForm() {
   );
 }
 
+// Main export with Suspense wrapper
 export default function ResetPassword() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-      </div>
-    }>
-      <ResetPasswordForm />
+    <Suspense fallback={<LoadingSpinner />}>
+      <ResetPasswordContent />
     </Suspense>
   );
 }
