@@ -64,7 +64,8 @@ export default function Signup() {
       });
 
       if (error) {
-        setError(error.message || 'An error occurred during signup');
+        const errorMessage = (error as any)?.message || 'An error occurred during signup';
+        setError(errorMessage);
         return;
       }
 

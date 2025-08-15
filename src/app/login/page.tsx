@@ -26,10 +26,11 @@ export default function Login() {
             const { data, error } = await signIn(email, password);
 
             if (error) {
-                setError(error.message || 'An error occurred during login');
+                const errorMessage = (error as any)?.message || 'An error occurred during login';
+                setError(errorMessage);
 
                 // Show resend confirmation option if email not confirmed
-                if (error.message.includes('Email not confirmed') || error.message.includes('check your email')) {
+                if (errorMessage.includes('Email not confirmed') || errorMessage.includes('check your email')) {
                     setShowResendConfirmation(true);
                 }
                 return;
