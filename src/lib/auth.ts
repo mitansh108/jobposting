@@ -76,26 +76,7 @@ export async function signIn(email: string, password: string) {
     }
 }
 
-// Google OAuth sign in
-export async function signInWithGoogle() {
-  try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: 'https://jobposting-sxhz.vercel.app/auth/callback'
-      }
-    })
 
-    if (error) {
-      throw error
-    }
-
-    return { data, error: null }
-  } catch (error) {
-    console.error('Google sign in error:', error)
-    return { data: null, error }
-  }
-}
 
 // Sign out function
 export async function signOut() {
